@@ -1,0 +1,15 @@
+name = "cse290q"
+version = "0.1.0"
+keywords = ["math"]
+defaultTargets = ["CSE290Q"]
+
+[leanOptions]
+pp.unicode.fun = false # pretty-prints `fun a => b`
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+rev = "v4.29.0"
+
+[[lean_lib]]
+name = "CSE290Q"
