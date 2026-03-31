@@ -1,4 +1,7 @@
 import Lean
+import Batteries
+import Mathlib.Tactic.Tauto
+import Mathlib.Tactic.Explode
 /-!
 # Brief introduction to Lean
 -/
@@ -31,6 +34,8 @@ theorem factorial_one_eq : factorial 1 = 1 := by
 theorem factorial_one_eq' : factorial 1 = 1 := by trivial
 
 #print factorial
+#check factorial.eq_1
+#print factorial.eq_2
 
 theorem factorial_pos (n : Nat) : 0 < factorial n := by
   induction n with
@@ -56,14 +61,33 @@ Propositions as types (Curry–Howard correspondence)
 
 set_option pp.proofs true
 
-example (p q : Prop) : p ∧ q → q ∧ p := by
+theorem foo1 (p q : Prop) : p ∧ q → q ∧ p := by
   intro h
   obtain ⟨h1, h2⟩ := h
   exact And.intro h2 h1
 
+#print foo1
+
+def foo2 {p q : Type} : p × q → q × p := by
+  intro h
+  obtain ⟨h1, h2⟩ := h
+  exact Prod.mk h2 h1
+
+#print foo2
+#eval foo2 (true, "cse290q")
+
+theorem foo1' (p q : Prop) (h : p ∧ q) : q ∧ p :=
+  match h with
+  | And.intro h1 h2 => And.intro h2 h1
+
+def foo2' (p q : Type) (h : p × q) : q × p :=
+  match h with
+  | Prod.mk h1 h2 => Prod.mk h2 h1
+
 example (p : Prop) : p → p := fun h => h
 example (p q : Prop) : p → (q → p) := fun h _ => h
-example (p q r : Prop) : (p → q) → (p → (q → r)) → (p → r) := by?
+theorem thm_s (p q r : Prop) : (p → q) → (p → (q → r)) → (p → r) := by
+  -- tauto
   intro h1
   intro h2
   intro h3
@@ -72,6 +96,9 @@ example (p q r : Prop) : (p → q) → (p → (q → r)) → (p → r) := by?
   specialize h2 h1
   assumption
 
+#check ∀ n : Nat, 0 < factorial n
+
+#explode thm_s
 
 
 /-!
@@ -135,7 +162,7 @@ macro_rules
   | `(`[Arith| <[ $e:term ]>]) => pure e
 
 def xPlusY := `[Arith| x + y]
-#check `[Arith| <[ xPlusY ]> + z]
+#eval `[Arith| <[ xPlusY ]> + z]
 
 def Arith.eval (vars : List (String × Int)) : Arith → Int
   | add x y => x.eval vars + y.eval vars
@@ -146,3 +173,13 @@ def Arith.eval (vars : List (String × Int)) : Arith → Int
 #eval
   let vars := [("x", 2), ("y", 3)]
   Arith.eval vars `[Arith| x + 3 * y]
+
+def Arith.eval' (vars : List (String × Int)) : Arith → Int
+  | `[Arith| <[x]> + <[y]>] => x.eval' vars + y.eval' vars
+  | `[Arith| <[x]> * <[y]>] => x.eval' vars * y.eval' vars
+  | int n => n
+  | symbol s => (vars.lookup s).getD 0
+
+-- Junk values:
+#eval 1 / 0
+#check (fun (a b : Nat) => a / b)
