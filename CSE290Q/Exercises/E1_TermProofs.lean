@@ -238,3 +238,34 @@ theorem not_iff_not_self : ¬(p ↔ ¬p) :=
 -- Prove this *without* using `Classical.em` or `Classical.not_not`.
 theorem not_iff_not_self' : ¬(p ↔ ¬p) :=
   sorry
+
+/-!
+Notice that the parameters for constants have at least two different forms:
+- `(p : Prop)` means that `p` is a parameter that must be given explicitly
+- `{p : Prop}` means that `p` is a parameter that Lean will attempt to infer
+  based on context. This is called an "implicit argument".
+
+You can use a `@` prefix to make all implicit arguments be explicit.
+For example, you would need to write `@And.intro p q hp hq` instead
+of `And.intro hp hq`.
+
+You can use `set_option pp.explicit true` to have the pretty printer use `@`
+prefixes to ensure no implicit arguments are hidden.
+-/
+
+/-!
+When you write the following proof, use `@` prefixes for every constant.
+You can use `_` for implicit arguments as are composing the term (this is called
+a *placeholder*, and it causes an argument to become implicit), however, be
+sure to replace all placeholders with actual terms by the end.
+-/
+theorem and_assoc_mp (h : p ∧ q ∧ r) : (p ∧ q) ∧ r :=
+  sorry
+
+/-!
+Extra
+
+You can use the `#explode` command to see a theorem in Fitch-like notation,
+rather than the lambda calculus notation.
+-/
+--#explode not_iff_not_self'
