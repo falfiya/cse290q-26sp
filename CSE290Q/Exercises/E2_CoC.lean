@@ -54,17 +54,17 @@ theorem Iff.intro (hpq : p → q) (hqp : q → p) : Iff p q :=
   fun _ h => h hpq hqp
 
 theorem Iff.mp (h : Iff p q) : p → q :=
-  
+  fun p => h q (fun mp _ => mp p)
 
 theorem Iff.mpr (h : Iff p q) : q → p :=
-  sorry
+  fun q => h p (fun _ mpr => mpr q)
 
 theorem Exists.intro {p : α → Prop} (x : α) (hp : p x) : Exists p :=
-  sorry
+  fun _ eliminator => eliminator x hp
 
 theorem Exists.elim {p : α → Prop}
     (h : Exists p) (hx : ∀ (x : α), p x → r) : r :=
-  sorry
+  h r hx
 
 /-!
 There's no reason to prove theorems about these connectives, since by giving
