@@ -180,7 +180,7 @@ sorry
 Use `And.elim` to derive the `And.left` elimination rule.
 -/
 theorem And.left' : p ∧ q → p :=
-  sorry
+  fun pq => pq.elim (fun p _ => p)
 
 -- (Hover over `And.left'` above to see its type. Notice only `p` and `q` are
 -- included as parameters, and the others are not. That's `variable` at work.)
@@ -189,7 +189,7 @@ theorem And.left' : p ∧ q → p :=
 Use `Or.elim` and its introduction rules:
 -/
 theorem Or.symm' : p ∨ q → q ∨ p :=
-  sorry
+  fun pq => pq.elim (Or.intro_right q) (Or.intro_left p)
 
 /-!
 Study the following `#print` outputs and determine which natural deduction
@@ -210,34 +210,54 @@ the exercise.
 -/
 
 theorem iff_iff_and : (p ↔ q) ↔ (p → q) ∧ (q → p) :=
-  sorry
+  Iff.intro
+    (fun pq => And.intro pq.mp pq.mpr)
+    (fun pq => pq.elim Iff.intro)
 
 theorem Or.imp' (h : p ∨ q) (hp : p → p') (hq : q → q') : p' ∨ q' :=
-  sorry
+  h.elim
+    (Or.intro_left q' ∘ hp)
+    (Or.intro_right p' ∘ hq)
 
 theorem Or.resolve_left' (h : p ∨ q) (hnp : ¬p) : q :=
-  sorry
+  h.elim hnp.elim id
 
-theorem and_false' : p ∧ False ↔ False := sorry
+theorem and_false' : p ∧ False ↔ False :=
+  Iff.intro
+    (fun pf => pf.elim (fun _ f => f))
+    (fun f => And.intro f.elim f)
 
-theorem not_not_em' : ¬¬(p ∨ ¬p) :=
-  sorry
+theorem not_not_em' : ¬¬(p ∨ ¬p) := by
+  unfold Not at *
+  exact
+  fun notcontra =>
+    have notp : p → False := notcontra ∘ Or.inl
+    notcontra (Or.inr notp)
 
 -- You can use `not_not_em'` and `Classical.not_not`.
 theorem em'' : p ∨ ¬p :=
-  sorry
+  -- em p -- electromagnetic pulse
+  not_not.mp not_not_em'
 
 -- You can use `Classical.em` and/or `Classical.not_not`.
 theorem not_or_of_imp' : (p → q) → (¬p ∨ q) :=
-  sorry
+  fun pq =>
+    (em p).elim
+      (Or.inr ∘ pq)
+      Or.inl
 
 -- Prove this using `Classical.em` to do a case analysis on `p`.
 theorem not_iff_not_self : ¬(p ↔ ¬p) :=
-  sorry
+  fun contra =>
+    (em p).elim
+      (fun p => contra.mp p p)
+      (fun np => np $ contra.mpr np)
 
 -- Prove this *without* using `Classical.em` or `Classical.not_not`.
 theorem not_iff_not_self' : ¬(p ↔ ¬p) :=
-  sorry
+  fun contra =>
+    have notp : ¬p := fun hp => contra.mp hp hp
+    notp $ contra.mpr notp
 
 /-!
 Notice that the parameters for constants have at least two different forms:
@@ -260,7 +280,7 @@ a *placeholder*, and it causes an argument to become implicit), however, be
 sure to replace all placeholders with actual terms by the end.
 -/
 theorem and_assoc_mp (h : p ∧ q ∧ r) : (p ∧ q) ∧ r :=
-  sorry
+  @h.elim p (q ∧ r) ((p ∧ q) ∧ r) fun p' qr => @qr.elim q r ((p ∧ q) ∧ r) fun q r => And.intro (And.intro p' q) r
 
 /-!
 Extra

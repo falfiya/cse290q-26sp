@@ -33,34 +33,28 @@ Hint: the proofs for the elimination rules should be very easy!
 variable {p q r : Prop} {α : Type}
 
 theorem True.trivial : True :=
-  sorry
+  @id
 
-theorem False.elim : False → p :=
-  sorry
+theorem False.elim : False → p := fun f => f p
 
-theorem And.intro (hp : p) (hq : q) : And p q :=
-  sorry
+theorem And.intro (hp : p) (hq : q) : And p q := fun _ pqr => pqr hp hq
 
-theorem And.left (h : And p q) : p :=
-  sorry
+theorem And.left (h : And p q) : p := h p fun p _ => p
 
-theorem And.right (h : And p q) : q :=
-  sorry
+theorem And.right (h : And p q) : q := h q fun _ q => q
 
-theorem Or.inl (hp : p) : Or p q :=
-  sorry
+theorem Or.inl (hp : p) : Or p q := fun _ pr _ => pr hp
 
-theorem Or.inr (hq : q) : Or p q :=
-  sorry
+theorem Or.inr (hq : q) : Or p q := fun _ _ pq => pq hq
 
 theorem Or.elim (h : Or p q) (hpq : p → r) (hqq : q → r) : r :=
-  sorry
+  h r hpq hqq
 
 theorem Iff.intro (hpq : p → q) (hqp : q → p) : Iff p q :=
-  sorry
+  fun _ h => h hpq hqp
 
 theorem Iff.mp (h : Iff p q) : p → q :=
-  sorry
+  
 
 theorem Iff.mpr (h : Iff p q) : q → p :=
   sorry
